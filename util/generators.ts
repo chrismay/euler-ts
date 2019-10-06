@@ -103,4 +103,10 @@ declare global {
     }
   }
 
+  export function* fromArray<T>(ts: T[]): Generator<T,void,unknown>{
+    for (const t of ts) {
+      yield t;
+    }
+  }
+
  export const nats = () => ints().filter(greaterThan(0));
