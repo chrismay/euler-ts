@@ -1,60 +1,81 @@
-const sum = (a, b) => a + (b ? b : 0);
-const prod = (a, b) => a * b;
-const square = x => x * x;
-const lessThan = lim => x => x < lim;
-const greaterThan = lim => x => x > lim;
+const sum = (a: number, b: number) => a + (b ? b : 0);
+const prod = (a: number, b: number) => a * b;
+const square = (x: number) => x * x;
+const lessThan = (lim: number) => (x: number) => x < lim;
+const greaterThan = (lim: number) => (x: number) => x > lim;
 
-const toArray = (v, arr) => {
+function toArray<T>(v: T, arr: Array<T> = []): Array<T> {
   if (arr) {
     return arr.concat([v]);
   } else {
     return [v];
   }
 };
-const max = (v, acc) => (v > (acc ? acc : 0) ? v : acc);
 
-Array.prototype.last = function() {
+const max: FoldFunction<number, number> = (v, acc) => (v > (acc ? acc : 0) ? v : acc);
+
+interface Array<T> {
+  last(): T;
+}
+
+Array.prototype.last = function () {
   return this.slice(-1)[0];
 };
 
-const Generator = Object.getPrototypeOf(function*() {});
+type FoldFunction<TFrom, TTo> = (v: TFrom, acc: TTo) => TTo;
 
-Generator.prototype.map = function*(f) {
+interface Generator<T, TReturn, TNext> {
+  map<To>(f: (t: T) => To): Generator<To, TReturn, TNext>;
+  filter(p: (t: T) => boolean): Generator<T, TReturn, TNext>;
+  first(): T;
+  takeWhile(p: (t: T) => boolean): Generator<T, TReturn, TNext>;
+  fold<To>(ff: FoldFunction<T, To>, init: To): To;
+  reduce<To>(ff: FoldFunction<T, To>): To;
+  last(): T;
+  flatMap<To>(f: (v: T) => Generator<To, TReturn, TNext>): Generator<To, TReturn, TNext>;
+  //  flatten<To>(ff:FoldFunction<T,To>, zero:To):Generator<To, TReturn,TNext>;
+  toArray(): T[];
+}
+type Predicate<T> = (v: T) => boolean;
+
+const Generator = Object.getPrototypeOf(function* () { });
+
+Generator.prototype.map = function*<T, To>(f: (t: T) => To) {
   for (const v of this) {
     yield f(v);
   }
 };
-Generator.prototype.filter = function*(p) {
+Generator.prototype.filter = function* <T>(p: Predicate<T>) {
   for (const v of this) {
     if (p(v)) {
       yield v;
     }
   }
 };
-Generator.prototype.first = function() {
+Generator.prototype.first = function () {
   for (const v of this) {
     return v;
   }
 };
 
-Generator.prototype.takeWhile = function*(predicate, context) {
+Generator.prototype.takeWhile = function* <T>(p: Predicate<T>) {
   for (const v of this) {
-    if (!predicate.call(context, v)) {
+    if (!p(v)) {
       return v;
     }
     yield v;
   }
 };
 
-Generator.prototype.fold = function(ff, init, context) {
+Generator.prototype.fold = function <TFrom, TTo>(ff: FoldFunction<TFrom, TTo>, init: TTo): TTo {
   let acc = init;
   for (const v of this) {
-    acc = ff.call(context, v, acc);
+    acc = ff(v, acc);
   }
   return acc;
 };
 
-Generator.prototype.reduce = function(ff) {
+Generator.prototype.reduce = function <TFrom, TTo>(ff: FoldFunction<TFrom, TTo>) {
   let acc;
   for (const v of this) {
     acc = ff(v, acc);
@@ -62,20 +83,31 @@ Generator.prototype.reduce = function(ff) {
   return acc;
 };
 
-const last = v => v;
+Generator.prototype.toArray = function () {
+  const arr = [];
+  for (const v of this) {
+    arr.push(v);
+  }
+  return arr;
+}
 
-function* product(gen1f, gen2f) {
-  for (const v of gen1f()) {
-    for (const w of gen2f()) {
-      yield function*() {
-        yield v;
-        yield w;
-      };
+Generator.prototype.last = function () {
+  let last;
+  for (const v of this) {
+    last = v;
+  }
+  return last;
+};
+
+Generator.prototype.flatMap = function* <TFrom, TTo>(f: (v: TFrom) => Generator<TTo, void, unknown>) {
+  for (const v of this) {
+    for (const vv of (f(v))) {
+      yield vv;
     }
   }
 }
 
-function* zip(gen1, gen2) {
+function* zip<T1, T2>(gen1: Generator<T1, void, unknown>, gen2: Generator<T2, T2, T2>): Generator<[T1, T2], (T1 | T2)[], unknown> {
   for (const v of gen1) {
     const { value, done } = gen2.next();
     if (!done) {
@@ -85,11 +117,6 @@ function* zip(gen1, gen2) {
     }
   }
 }
-Generator.prototype.flatten = function*(combiner, zero) {
-  for (const gen of this) {
-    yield gen().fold(combiner, zero);
-  }
-};
 
 function* ints() {
   let i = 0;
@@ -103,8 +130,8 @@ const nats = () => ints().filter(greaterThan(0));
 
 function* primes() {
   let prev = 1;
-  const primes = [];
-  function notprime(x) {
+  const primes: number[] = [];
+  function notprime(x: number) {
     return primes.find(p => x % p === 0);
   }
   while (true) {
@@ -118,7 +145,7 @@ function* primes() {
 }
 
 function ex1() {
-  const isDivisible = x => x % 3 === 0 || x % 5 === 0;
+  const isDivisible = (x: number) => x % 3 === 0 || x % 5 === 0;
 
   console.log(
     "Ex1:",
@@ -130,8 +157,8 @@ function ex1() {
 }
 
 function ex2() {
-  function fibsTo(limit) {
-    function fib(limit, acc) {
+  function fibsTo(limit: number) {
+    function fib(limit: number, acc: number[]): number[] {
       const [a, b] = acc.slice(-2);
       if (b >= limit) {
         return acc;
@@ -141,7 +168,7 @@ function ex2() {
     return fib(limit, [1, 2]);
   }
 
-  const isEven = x => x % 2 === 0;
+  const isEven: Predicate<number> = x => x % 2 === 0;
 
   console.log(
     "Ex2:",
@@ -152,8 +179,8 @@ function ex2() {
 }
 
 function ex3() {
-  function nextprime(above, primes) {
-    function notprime(x) {
+  function nextprime(above: number, primes: number[]): number {
+    function notprime(x: number) {
       return primes.find(p => x % p === 0);
     }
     let next = above + 1;
@@ -163,7 +190,7 @@ function ex3() {
     return next;
   }
 
-  function factors(n) {
+  function factors(n: number) {
     const max = Math.ceil(Math.sqrt(n));
 
     const factors = [];
@@ -185,7 +212,7 @@ function ex3() {
 }
 
 function ex4() {
-  function reverseString(str) {
+  function reverseString(str: string) {
     return str
       .split("")
       .reverse()
@@ -196,25 +223,28 @@ function ex4() {
       .filter(x => x > 99)
       .takeWhile(x => x < 1000);
 
-  const palindromic = x => "" + x === reverseString("" + x);
+  const palindromic: Predicate<number> = x => "" + x === reverseString("" + x);
+
+  const combine =
+    (x: number) => threedigits().map(n => n * x);
 
   console.log(
     "Ex4:",
-    product(threedigits, threedigits)
-      .flatten((a, b) => a * b, 1)
+    threedigits()
+      .flatMap(combine)
       .filter(palindromic)
       .reduce(max)
   );
 }
 
 function ex5() {
-  const factors = nats()
+  const factors: number[] = nats()
     .takeWhile(lessThan(21))
-    .reduce(toArray);
+    .toArray();
 
   const [highest, ...rest] = factors.reverse();
 
-  const isMultipleOfAll = fs => x => !fs.find(f => x % f !== 0);
+  const isMultipleOfAll: (fs: number[]) => Predicate<number> = fs => x => !fs.find(f => x % f !== 0);
 
   const r = rest.reduce(prod);
   const product = ints()
@@ -250,7 +280,7 @@ function ex7() {
     zip(nats(), primes())
       .takeWhile(([i]) => i <= 10001)
       .map(([, p]) => p)
-      .reduce(last)
+      .last()
   );
 }
 
@@ -260,26 +290,23 @@ function ex9() {
       .map(x => ({ x, x2: square(x) }))
       .takeWhile(({ x }) => lessThan(1000)(x));
 
-  const squaresTo1000 = squares().reduce(toArray);
+  const squaresTo1000 = squares().toArray();
 
-  console.log(squaresTo1000.length);
-
-  function sqrt(n) {
+  function sqrt(n: number) {
     const root = squaresTo1000.find(({ x2 }) => x2 === n);
     return root ? root.x : undefined;
   }
 
-  const [a,b,c] = product(squares, squares)
-    .flatten(toArray)
+  const [a, b, c] = squares().flatMap(a => squares().map(b => [a, b]))
     .map(([a, b]) => [a, b, { x: sqrt(a.x2 + b.x2), x2: a.x2 + b.x2 }])
     .filter(([a, b, c]) => a.x + b.x + c.x === 1000)
     .first()
 
-  console.log(a.x * b.x * c.x);
+  console.log("Ex9:", a.x * b.x * c.x);
 }
 
 function ex20() {
-  function fact(f) {
+  function fact(f:bigint):bigint {
     if (f === 0n) {
       return 1n;
     } else {
@@ -296,13 +323,24 @@ function ex20() {
   );
 }
 
-//ex1();
-// ex2();
+ex1();
+ex2();
 
-// ex3();
-// ex4();
-// ex5();
-// ex7();
+ex3();
+ex4();
+ex5();
+ex7();
 
 ex9();
-//ex20();
+ex20();
+/**
+ * [Running] ts-node "c:\Users\chris\code\euler\index.ts"
+Ex1: 233168
+Ex2: 4613732
+Ex3: 6857
+Ex4: 906609
+Ex5: 232792560
+Ex7: 104743
+Ex9: 31875000
+Ex20:  648
+ */
