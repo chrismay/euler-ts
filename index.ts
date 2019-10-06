@@ -1,18 +1,7 @@
-const sum = (a: number, b: number) => a + (b ? b : 0);
-const prod = (a: number, b: number) => a * b;
-const square = (x: number) => x * x;
-const lessThan = (lim: number) => (x: number) => x < lim;
-const greaterThan = (lim: number) => (x: number) => x > lim;
+type FoldFunction<TFrom, TTo> = (v: TFrom, acc?: TTo) => TTo;
+type Predicate<T> = (v: T) => boolean;
+type MapFunction<From, To> = (f: From) => To;
 
-function toArray<T>(v: T, arr: Array<T> = []): Array<T> {
-  if (arr) {
-    return arr.concat([v]);
-  } else {
-    return [v];
-  }
-};
-
-const max: FoldFunction<number, number> = (v, acc) => (v > (acc ? acc : 0) ? v : acc);
 
 interface Array<T> {
   last(): T;
@@ -22,43 +11,43 @@ Array.prototype.last = function () {
   return this.slice(-1)[0];
 };
 
-type FoldFunction<TFrom, TTo> = (v: TFrom, acc: TTo) => TTo;
-
+// #region generator
 interface Generator<T, TReturn, TNext> {
-  map<To>(f: (t: T) => To): Generator<To, TReturn, TNext>;
-  filter(p: (t: T) => boolean): Generator<T, TReturn, TNext>;
-  first(): T;
-  takeWhile(p: (t: T) => boolean): Generator<T, TReturn, TNext>;
+  map<To>(f: MapFunction<T, To>): Generator<To, unknown, TNext>;
+  flatMap<To>(f: MapFunction<T, Generator<To, unknown, TNext>>): Generator<To, unknown, TNext>;
+  filter(p: Predicate<T>): Generator<T, TReturn, TNext>;
+  takeWhile(p: Predicate<T>): Generator<T, TReturn, TNext>;
   fold<To>(ff: FoldFunction<T, To>, init: To): To;
-  reduce<To>(ff: FoldFunction<T, To>): To;
-  last(): T;
-  flatMap<To>(f: (v: T) => Generator<To, TReturn, TNext>): Generator<To, TReturn, TNext>;
-  //  flatten<To>(ff:FoldFunction<T,To>, zero:To):Generator<To, TReturn,TNext>;
+  reduce<To>(ff: FoldFunction<T, To>): To | undefined;
+  first(): T;
+  last(): T | undefined;
   toArray(): T[];
 }
-type Predicate<T> = (v: T) => boolean;
 
 const Generator = Object.getPrototypeOf(function* () { });
+const genProto: Generator = Generator.prototype;
 
-Generator.prototype.map = function*<T, To>(f: (t: T) => To) {
+genProto.map = function*<T, To>(this: Generator<T, T, unknown>, f: (t: T) => To) {
   for (const v of this) {
     yield f(v);
   }
 };
-Generator.prototype.filter = function* <T>(p: Predicate<T>) {
+
+genProto.filter = function* <T>(this: Generator<T, unknown, unknown>, p: Predicate<T>) {
   for (const v of this) {
     if (p(v)) {
       yield v;
     }
   }
 };
-Generator.prototype.first = function () {
+genProto.first = function () {
   for (const v of this) {
     return v;
   }
+  throw Error("Called First on an empty generator");
 };
 
-Generator.prototype.takeWhile = function* <T>(p: Predicate<T>) {
+genProto.takeWhile = function* <T>(this: Generator<T, T, unknown>, p: Predicate<T>) {
   for (const v of this) {
     if (!p(v)) {
       return v;
@@ -67,7 +56,7 @@ Generator.prototype.takeWhile = function* <T>(p: Predicate<T>) {
   }
 };
 
-Generator.prototype.fold = function <TFrom, TTo>(ff: FoldFunction<TFrom, TTo>, init: TTo): TTo {
+genProto.fold = function <TFrom, TTo>(this: Generator<TFrom, TFrom, unknown>, ff: FoldFunction<TFrom, TTo>, init: TTo): TTo {
   let acc = init;
   for (const v of this) {
     acc = ff(v, acc);
@@ -75,15 +64,15 @@ Generator.prototype.fold = function <TFrom, TTo>(ff: FoldFunction<TFrom, TTo>, i
   return acc;
 };
 
-Generator.prototype.reduce = function <TFrom, TTo>(ff: FoldFunction<TFrom, TTo>) {
-  let acc;
+genProto.reduce = function <TFrom, TTo>(this: Generator<TFrom, TFrom, unknown>, ff: FoldFunction<TFrom, TTo>) {
+  let acc: TTo | undefined;
   for (const v of this) {
     acc = ff(v, acc);
   }
   return acc;
 };
 
-Generator.prototype.toArray = function () {
+genProto.toArray = function () {
   const arr = [];
   for (const v of this) {
     arr.push(v);
@@ -91,7 +80,7 @@ Generator.prototype.toArray = function () {
   return arr;
 }
 
-Generator.prototype.last = function () {
+genProto.last = function () {
   let last;
   for (const v of this) {
     last = v;
@@ -99,26 +88,30 @@ Generator.prototype.last = function () {
   return last;
 };
 
-Generator.prototype.flatMap = function* <TFrom, TTo>(f: (v: TFrom) => Generator<TTo, void, unknown>) {
+genProto.flatMap = function* <TFrom, TTo>(
+  this: Generator<TFrom, unknown, unknown>,
+  f: (v: TFrom) => Generator<TTo, unknown, unknown>) {
   for (const v of this) {
     for (const vv of (f(v))) {
       yield vv;
     }
   }
 }
+// #endregion
 
-function* zip<T1, T2>(gen1: Generator<T1, void, unknown>, gen2: Generator<T2, T2, T2>): Generator<[T1, T2], (T1 | T2)[], unknown> {
+function* zip<T1, T2>(gen1: Generator<T1, T1, unknown>, gen2: Generator<T2, T2, unknown>): Generator<[T1, T2], unknown, unknown> {
   for (const v of gen1) {
-    const { value, done } = gen2.next();
+    const { value, done }: { value: T2, done?: boolean } = gen2.next();
     if (!done) {
       yield [v, value];
     } else {
-      return [v, value];
+      yield [v, value];
+      return;
     }
   }
 }
 
-function* ints() {
+function* ints(): Generator<number, number, unknown> {
   let i = 0;
   while (true) {
     yield i;
@@ -126,9 +119,27 @@ function* ints() {
   }
 }
 
+const sum: FoldFunction<number, number> = (a, b) => a + (b ? b : 0);
+const prod: FoldFunction<number, number> = (a: number, b?: number) => a * (b ? b : 1);
+const square = (x: number) => x * x;
+const lessThan = (lim: number) => (x: number) => x < lim;
+const greaterThan = (lim: number) => (x: number) => x > lim;
+
+const max: FoldFunction<number, number> = function (test: number, current?: number): number {
+  if (current) {
+    if (test > current) {
+      return test;
+    } else {
+      return current;
+    }
+  } else {
+    return test;
+  }
+}
+
 const nats = () => ints().filter(greaterThan(0));
 
-function* primes() {
+function* primes(): Generator<number, number, unknown> {
   let prev = 1;
   const primes: number[] = [];
   function notprime(x: number) {
@@ -263,13 +274,12 @@ function ex6() {
     .map(square)
     .reduce(sum);
 
-  const squareSum = square(
-    nats()
-      .takeWhile(lessThan(lim + 1))
-      .reduce(sum)
-  );
+  const sumNums = nats()
+    .takeWhile(lessThan(lim + 1))
+    .reduce(sum);
+  const squareSum = square(sumNums || 0);
 
-  const diff = squareSum - sumSquares;
+  const diff = squareSum - (sumSquares || 0);
 
   console.log("Ex6:", diff);
 }
@@ -292,13 +302,15 @@ function ex9() {
 
   const squaresTo1000 = squares().toArray();
 
-  function sqrt(n: number) {
+  function sqrt(n: number): number {
     const root = squaresTo1000.find(({ x2 }) => x2 === n);
-    return root ? root.x : undefined;
+    return root ? root.x : 0;
   }
 
-  const [a, b, c] = squares().flatMap(a => squares().map(b => [a, b]))
+  const [a, b, c] = squares()
+    .flatMap(a => squares().map(b => [a, b]))
     .map(([a, b]) => [a, b, { x: sqrt(a.x2 + b.x2), x2: a.x2 + b.x2 }])
+    .filter(([, , c]) => c.x > 0)
     .filter(([a, b, c]) => a.x + b.x + c.x === 1000)
     .first()
 
@@ -306,7 +318,7 @@ function ex9() {
 }
 
 function ex20() {
-  function fact(f:bigint):bigint {
+  function fact(f: bigint): bigint {
     if (f === 0n) {
       return 1n;
     } else {
@@ -334,7 +346,6 @@ ex7();
 ex9();
 ex20();
 /**
- * [Running] ts-node "c:\Users\chris\code\euler\index.ts"
 Ex1: 233168
 Ex2: 4613732
 Ex3: 6857
