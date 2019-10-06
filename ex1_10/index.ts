@@ -163,6 +163,9 @@ function ex9() {
   console.log("Ex9:", a.x * b.x * c.x);
 }
 
+function ex10(){
+  console.log("Ex10:",primes().takeWhile(lessThan(2000000)).reduce(sum));
+}
 export function ex1To10(){
     ex1();
     ex2();
@@ -174,4 +177,6 @@ export function ex1To10(){
     ex7();
 
     ex9();
-}
+    console.log("Ex 10 takes ~60 seconds to run; please wait...");
+    ex10();
+  }

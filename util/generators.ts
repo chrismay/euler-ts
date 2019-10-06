@@ -6,7 +6,6 @@ declare global {
       flatMap<To>(f: MapFunction<T, Generator<To, unknown, TNext>>): Generator<To, void, TNext>;
       filter(p: Predicate<T>): Generator<T, TReturn, TNext>;
       takeWhile(p: Predicate<T>): Generator<T, void, TNext>;
-   //   fold<To>(ff: FoldFunction<T, To>, init: To): To;
       reduce<To>(ff: Reducer<T, To>): To | undefined;
       first(): T;
       last(): T;
@@ -41,7 +40,6 @@ declare global {
   genProto.takeWhile = function* <T>(this: Generator<T, unknown, unknown>, p: Predicate<T>): Generator<T, void, unknown> {
     for (const v of this) {
       if (!p(v)) {
-        yield v;
         return;
       }
       yield v;
