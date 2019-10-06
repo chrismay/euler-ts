@@ -7,7 +7,7 @@ interface Array<T> {
   last(): T;
 }
 
-Array.prototype.last = function () {
+Array.prototype.last = function <T>(this: T[]): T {
   return this.slice(-1)[0];
 };
 
@@ -24,30 +24,31 @@ interface Generator<T, TReturn, TNext> {
   toArray(): T[];
 }
 
-const Generator = Object.getPrototypeOf(function* () { });
+const Generator = Object.getPrototypeOf(function* () { yield; });
 const genProto: Generator = Generator.prototype;
 
-genProto.map = function*<T, To>(this: Generator<T, T, unknown>, f: (t: T) => To) {
+genProto.map = function*<T, To>(this: Generator<T, T, unknown>, f: (t: T) => To): Generator<To, void, unknown> {
   for (const v of this) {
     yield f(v);
   }
 };
 
-genProto.filter = function* <T>(this: Generator<T, unknown, unknown>, p: Predicate<T>) {
+genProto.filter = function*<T>(this: Generator<T, unknown, unknown>, p: Predicate<T>): Generator<T, void, unknown> {
   for (const v of this) {
     if (p(v)) {
       yield v;
     }
   }
 };
-genProto.first = function () {
+
+genProto.first = function <T>(this: Generator<T, unknown, unknown>): T {
   for (const v of this) {
     return v;
   }
   throw Error("Called First on an empty generator");
 };
 
-genProto.takeWhile = function* <T>(this: Generator<T, T, unknown>, p: Predicate<T>) {
+genProto.takeWhile = function* <T>(this: Generator<T, unknown, unknown>, p: Predicate<T>): Generator<T, void, unknown> {
   for (const v of this) {
     if (!p(v)) {
       yield v;
@@ -65,7 +66,7 @@ genProto.fold = function <TFrom, TTo>(this: Generator<TFrom, TFrom, unknown>, ff
   return acc;
 };
 
-genProto.reduce = function <TFrom, TTo>(this: Generator<TFrom, TFrom, unknown>, ff: FoldFunction<TFrom, TTo>) {
+genProto.reduce = function <TFrom, TTo>(this: Generator<TFrom, TFrom, unknown>, ff: FoldFunction<TFrom, TTo>): TTo | undefined {
   let acc: TTo | undefined;
   for (const v of this) {
     acc = ff(v, acc);
@@ -73,7 +74,7 @@ genProto.reduce = function <TFrom, TTo>(this: Generator<TFrom, TFrom, unknown>, 
   return acc;
 };
 
-genProto.toArray = function () {
+genProto.toArray = function <T>(this: Generator<T, unknown, unknown>): T[] {
   const arr = [];
   for (const v of this) {
     arr.push(v);
@@ -81,17 +82,21 @@ genProto.toArray = function () {
   return arr;
 }
 
-genProto.last = function () {
+genProto.last = function <T>(this: Generator<T, unknown, unknown>): T {
   let last;
   for (const v of this) {
     last = v;
   }
-  return last;
+  if (last === undefined) {
+    throw Error("Called Last on an empty generator");
+  } else {
+    return last;
+  }
 };
 
 genProto.flatMap = function* <TFrom, TTo>(
   this: Generator<TFrom, unknown, unknown>,
-  f: (v: TFrom) => Generator<TTo, unknown, unknown>) {
+  f: (v: TFrom) => Generator<TTo, unknown, unknown>): Generator<TTo, void, unknown> {
   for (const v of this) {
     for (const vv of (f(v))) {
       yield vv;
@@ -102,7 +107,7 @@ genProto.flatMap = function* <TFrom, TTo>(
 
 function* zip<T1, T2>(gen1: Generator<T1, void, unknown>, gen2: Generator<T2, void, unknown>): Generator<[T1, T2], unknown, unknown> {
   for (const v of gen1) {
-    const {value, done }= gen2.next();
+    const { value, done } = gen2.next();
     if (!done && value) {
       yield [v, value];
     } else {
@@ -121,9 +126,10 @@ function* ints(): Generator<number, void, unknown> {
 
 const sum: FoldFunction<number, number> = (a, b) => a + (b ? b : 0);
 const prod: FoldFunction<number, number> = (a: number, b?: number) => a * (b ? b : 1);
-const square = (x: number) => x * x;
-const lessThan = (lim: number) => (x: number) => x < lim;
-const greaterThan = (lim: number) => (x: number) => x > lim;
+const square: (x: number) => number = x => x * x;
+
+const lessThan:  (lim: number) => Predicate<number> = lim => x => x < lim;
+const greaterThan: (lim: number) => Predicate<number> = lim => x => x > lim;
 
 const max: FoldFunction<number, number> = function (test: number, current?: number): number {
   if (current) {
@@ -341,6 +347,7 @@ ex2();
 ex3();
 ex4();
 ex5();
+ex6();
 ex7();
 
 ex9();
