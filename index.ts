@@ -13,14 +13,14 @@ Array.prototype.last = function () {
 
 // #region generator
 interface Generator<T, TReturn, TNext> {
-  map<To>(f: MapFunction<T, To>): Generator<To, unknown, TNext>;
-  flatMap<To>(f: MapFunction<T, Generator<To, unknown, TNext>>): Generator<To, unknown, TNext>;
+  map<To>(f: MapFunction<T, To>): Generator<To, void, TNext>;
+  flatMap<To>(f: MapFunction<T, Generator<To, unknown, TNext>>): Generator<To, void, TNext>;
   filter(p: Predicate<T>): Generator<T, TReturn, TNext>;
-  takeWhile(p: Predicate<T>): Generator<T, TReturn, TNext>;
+  takeWhile(p: Predicate<T>): Generator<T, void, TNext>;
   fold<To>(ff: FoldFunction<T, To>, init: To): To;
   reduce<To>(ff: FoldFunction<T, To>): To | undefined;
   first(): T;
-  last(): T | undefined;
+  last(): T;
   toArray(): T[];
 }
 
@@ -50,7 +50,8 @@ genProto.first = function () {
 genProto.takeWhile = function* <T>(this: Generator<T, T, unknown>, p: Predicate<T>) {
   for (const v of this) {
     if (!p(v)) {
-      return v;
+      yield v;
+      return;
     }
     yield v;
   }
@@ -99,19 +100,18 @@ genProto.flatMap = function* <TFrom, TTo>(
 }
 // #endregion
 
-function* zip<T1, T2>(gen1: Generator<T1, T1, unknown>, gen2: Generator<T2, T2, unknown>): Generator<[T1, T2], unknown, unknown> {
+function* zip<T1, T2>(gen1: Generator<T1, void, unknown>, gen2: Generator<T2, void, unknown>): Generator<[T1, T2], unknown, unknown> {
   for (const v of gen1) {
-    const { value, done }: { value: T2, done?: boolean } = gen2.next();
-    if (!done) {
+    const {value, done }= gen2.next();
+    if (!done && value) {
       yield [v, value];
     } else {
-      yield [v, value];
       return;
     }
   }
 }
 
-function* ints(): Generator<number, number, unknown> {
+function* ints(): Generator<number, void, unknown> {
   let i = 0;
   while (true) {
     yield i;
@@ -139,7 +139,7 @@ const max: FoldFunction<number, number> = function (test: number, current?: numb
 
 const nats = () => ints().filter(greaterThan(0));
 
-function* primes(): Generator<number, number, unknown> {
+function* primes(): Generator<number, void, unknown> {
   let prev = 1;
   const primes: number[] = [];
   function notprime(x: number) {
