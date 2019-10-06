@@ -20,16 +20,17 @@ function ex11() {
 04 42 16 73 38 25 39 11 24 94 72 18 08 46 29 32 40 62 76 36
 20 69 36 41 72 30 23 88 34 62 99 69 82 67 59 85 74 04 36 16
 20 73 35 29 78 31 90 01 74 31 49 71 48 86 81 16 23 57 05 54
-01 70 54 71 83 51 54 69 16 92 33 48 61 43 52 01 89 19 67 48`
+01 70 54 71 83 51 54 69 16 92 33 48 61 43 52 01 89 19 67 48`;
 
-    const data = board.split("\n").map(row => row.split(" ").map(num => +num))
-    console.log(data);
+    const data = board.split("\n").map(row => row.split(" ").map(num => +num));
+    //console.log(data);
 }
+
 ex11();
 function ex20() {
     function fact(f: bigint): bigint {
         if (f === BigInt(0)) {
-            return BigInt(1)
+            return BigInt(1);
         } else {
             return BigInt(f * fact(f - BigInt(1)));
         }

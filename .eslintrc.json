@@ -10,5 +10,6 @@
   "rules": {
     "@typescript-eslint/explicit-function-return-type": ["off", {
       "allowTypedFunctionExpressions": true
-    }]
+    }],
+    "semi": [2, "always"]
   }}

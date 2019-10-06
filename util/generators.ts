@@ -60,7 +60,7 @@ declare global {
       arr.push(v);
     }
     return arr;
-  }
+  };
 
   genProto.last = function <T>(this: Generator<T, unknown, unknown>): T {
     let last;
@@ -82,7 +82,7 @@ declare global {
         yield vv;
       }
     }
-  }
+  };
 
   export function* zip<T1, T2>(gen1: Generator<T1, void, unknown>, gen2: Generator<T2, void, unknown>): Generator<[T1, T2], unknown, unknown> {
     for (const v of gen1) {
