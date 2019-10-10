@@ -6,7 +6,9 @@
     "experimentalDecorators": true,
     "noImplicitAny": true,
     "strict": true,
-    "lib": ["es2015","dom","esnext.bigint"]
+    "lib": ["es2015","dom","esnext.bigint"],
+    "outDir": "out",
+    "sourceMap": true
   },
   "exclude": ["node_modules"]
 }

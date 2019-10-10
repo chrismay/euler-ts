@@ -1,6 +1,37 @@
-import { sum } from "../util";
+import { sum, prod, max, fromArray } from "../util";
+import { frequency } from "../util/reducers";
+import { wheelFactorise } from "../util/factorise";
+type Matrix = number[][];
+
+
+
+function divisors(num: number): number {
+
+    function countDistinct(items: number[]) {
+        const res: [number, number][] = [];
+        let cur;
+        let count = 0;
+        for (const n of items) {
+            if (n === cur) {
+                count = count + 1;
+            } else {
+                if (cur !== undefined) {
+                    res.push([cur, count]);
+                }
+                cur = n;
+                count = 1;
+            }
+        }
+        if (cur != undefined) {
+            res.push([cur, count]);
+        }
+        return res;
+    }
+    return countDistinct(wheelFactorise(num)).reduce((acc, [, power]) => acc * (power + 1), 1);
+}
+
 function ex11() {
-    const board =
+    const board: Matrix =
         `08 02 22 97 38 15 00 40 00 75 04 05 07 78 52 12 50 77 91 08
 49 49 99 40 17 81 18 57 60 87 17 40 98 43 69 48 04 56 62 00
 81 49 31 73 55 79 14 29 93 71 40 67 53 88 30 03 49 13 36 65
@@ -20,13 +51,69 @@ function ex11() {
 04 42 16 73 38 25 39 11 24 94 72 18 08 46 29 32 40 62 76 36
 20 69 36 41 72 30 23 88 34 62 99 69 82 67 59 85 74 04 36 16
 20 73 35 29 78 31 90 01 74 31 49 71 48 86 81 16 23 57 05 54
-01 70 54 71 83 51 54 69 16 92 33 48 61 43 52 01 89 19 67 48`;
+01 70 54 71 83 51 54 69 16 92 33 48 61 43 52 01 89 19 67 48`
+            .split("\n").map(row => row.split(" ").map(num => +num));
 
-    const data = board.split("\n").map(row => row.split(" ").map(num => +num));
-    //console.log(data);
+    const windowSize = 4;
+
+    function findMax(lines: Matrix) {
+        function* windows(line: number[]) {
+            let cursor = 0;
+            while (cursor + windowSize < line.length) {
+                yield line.slice(cursor, cursor + windowSize);
+                cursor++;
+            }
+        }
+        return lines
+            .map(line => windows(line)
+                .map(arr => arr.reduce(prod))
+                .reduce(max) || 0)
+            .reduce(max);
+
+    }
+    function offset(b: Matrix): Matrix {
+        function* lines() {
+            let offset = 0;
+            const max = b[0].length;
+            for (const line of b) {
+                const leader = new Array(offset).fill(0);
+                const trailer = new Array(max - offset).fill(0);
+                yield leader.concat(line).concat(trailer);
+                offset++;
+            }
+        }
+        return lines().toArray();
+    }
+
+    function transpose(m: number[][]): number[][] {
+        return m[0].map((x, i) => m.map(x => x[i]));
+    }
+    console.log("Ex11:",
+        fromArray([
+            findMax(board),
+            findMax(transpose(board)),
+            findMax(transpose(offset(board))),
+            findMax(offset(transpose(board)))]
+        ).reduce(max));
 }
 
-ex11();
+function ex12() {
+    function* triangles() {
+        let prev = 0;
+        let count = 1;
+        while (true) {
+            prev = prev + count;
+            count++;
+            yield prev;
+        }
+    }
+
+    console.log("Ex12:", triangles()
+        .map(t => [t, divisors(t)])
+        .filter(([, factors]) => factors > 500)
+        .first());
+}
+
 function ex20() {
     function fact(f: bigint): bigint {
         if (f === BigInt(0)) {
@@ -46,8 +133,11 @@ function ex20() {
 }
 
 export function ex11To20() {
+    ex11();
+    ex12();
     ex20();
 }
+ex11To20();
 /*
 Ex20:  648
  */
