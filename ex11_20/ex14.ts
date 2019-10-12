@@ -1,4 +1,4 @@
-import { nats, greaterThan, lessThan, max } from "../util";
+import { greaterThan, lessThan, nats } from "../util";
 import { maxBy } from "../util/reducers";
 
 type Cache = { [key: number]: number };
@@ -21,19 +21,21 @@ function collatz(start: number, cache: Cache): Accumulator {
         .takeWhile(({ n }) => greaterThan(1)(n))
         .map(({ i, cache }) => ({ i: i + 2, n: start, cache }))
         .last();
-    cache[start] = res.i - 2;
+    cache[start] = res.i - 2; // mutate rather than destructing, for efficiency
     return res;
 };
 
-console.log(collatz(3, {}));
-console.log(collatz(5, {}));
-console.log(collatz(13, { 5: 4 }));
+// console.log(collatz(3, {}));
+// console.log(collatz(5, {}));
+// console.log(collatz(13, { 5: 4 }));
+export function ex14(){
+    console.log("Ex 14:",
+        nats().
+            filter(greaterThan(2))
+            .takeWhile(lessThan(1000001))
+            .foldMap((n, acc) => (collatz(n, acc.cache)), { i: 0, n: 0, cache: {} })
+            //        .tap(acc => { if (acc.n % 10000 === 0) console.log(acc.n, acc.i); })
+            .map(({ i, n }) => ({ n, i }))
+            .reduce(maxBy(({ i }) => i)));
 
-console.log(
-    nats().
-        filter(greaterThan(2))
-        .takeWhile(lessThan(1000000))
-        .foldMap((n, acc) => (collatz(n, acc.cache)), { i: 0, n: 0, cache: {} })
-        //        .tap(acc => { if (acc.n % 10000 === 0) console.log(acc.n, acc.i); })
-        .map(({ i, n }) => ({ n, i }))
-        .reduce(maxBy(({ i }) => i)));
+}
