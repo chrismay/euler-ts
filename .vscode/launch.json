@@ -5,11 +5,20 @@
     "version": "0.2.0",
     "configurations": [
 
+
         {
             "type": "node",
             "request": "launch",
             "name": "Ex11_20",
             "program": "${workspaceFolder}\\ex11_20\\index.ts",
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": ["${workspaceFolder}/out/**/*.js"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Collatz",
+            "program": "${workspaceFolder}\\ex11_20\\ex14.ts",
             "preLaunchTask": "tsc: build - tsconfig.json",
             "outFiles": ["${workspaceFolder}/out/**/*.js"]
         },

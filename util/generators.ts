@@ -4,6 +4,7 @@ import { Fold } from "./reducers";
 declare global {
   interface Generator<T, TReturn, TNext> {
     map<To>(f: MapFunction<T, To>): Generator<To, void, TNext>;
+    tap(effect: (t: T) => void): Generator<T, void, TNext>;
     flatMap<To>(f: MapFunction<T, Generator<To, unknown, TNext>>): Generator<To, void, TNext>;
     filter(p: Predicate<T>): Generator<T, TReturn, TNext>;
     takeWhile(p: Predicate<T>): Generator<T, void, TNext>;
@@ -23,6 +24,12 @@ const genProto: Generator = Generator.prototype;
 genProto.map = function*<T, To>(this: Generator<T, T, unknown>, f: (t: T) => To): Generator<To, void, unknown> {
   for (const v of this) {
     yield f(v);
+  }
+};
+genProto.tap = function*<T>(this: Generator<T, T, unknown>, effect: (v: T) => void): Generator<T, void, unknown> {
+  for (const v of this) {
+    effect(v);
+    yield v;
   }
 };
 

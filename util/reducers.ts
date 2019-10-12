@@ -11,9 +11,19 @@ export const max: Reducer<number, number> = (next: number, prev?: number) => {
   }
 };
 
-type Count = { [n: number]: number }
-export const frequency: Reducer<number, Count> = (n, freqs = {}) => {
-  const prev = freqs[n] || 0;
-  freqs[n] =  prev + 1;
-  return freqs;
-};
+export function maxBy<T>(f: (t: T) => number): Reducer<T, T> {
+  return (next: T, prev?: T) => {
+    if (prev !== undefined) {
+      return f(next) > f(prev) ? next : prev;
+    } else {
+      return next;
+    }
+  };
+}
+
+  type Count = { [n: number]: number }
+  export const frequency: Reducer<number, Count> = (n, freqs = {}) => {
+    const prev = freqs[n] || 0;
+    freqs[n] = prev + 1;
+    return freqs;
+  };

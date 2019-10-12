@@ -34,7 +34,6 @@ function wheelReduce(k: number, br: WheelReduction): WheelReduction {
     } else {
         return { ...br };
     }
-
 }
 
 export function wheelFactorise(num: number): number[] {
@@ -49,10 +48,3 @@ export function wheelFactorise(num: number): number[] {
     if (n > 1) factors.push(n);
     return factors;
 }
-
-// console.log(wheelFactorise(7919));
-// console.log(wheelFactorise(360).reduce((a,b)=>a*b));
-// console.log(wheelFactorise(27));
-// console.log(wheelFactorise(61 * 67 * 61));
-
-// console.log(wheelFactorise(521 * 523));
