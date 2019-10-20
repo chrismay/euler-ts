@@ -2,6 +2,7 @@ import { sum, prod, max, fromArray } from "../util";
 import { frequency } from "../util/reducers";
 import { wheelFactorise } from "../util/factorise";
 import { ex14 } from "./ex14";
+import { ex15 } from "./ex15";
 type Matrix = number[][];
 
 
@@ -137,6 +138,7 @@ export function ex11To20() {
     ex11();
     ex12();
     ex14();
+    ex15();
     ex20();
 }
 //ex11To20();
