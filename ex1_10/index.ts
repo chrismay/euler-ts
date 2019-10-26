@@ -1,4 +1,4 @@
-import { greaterThan, lessThan, ℕ, Predicate, zip, primes, sum, max, prod } from "../util";
+import { greaterThan, lessThan, ℕ, Predicate, zip, ℙ, sum, max, prod } from "../util";
 
 const square: (x: number) => number = x => x * x;
 
@@ -133,7 +133,7 @@ function ex6() {
 function ex7() {
   console.log(
     "Ex7:",
-    zip(ℕ(), primes())
+    zip(ℕ(), ℙ())
       .takeWhile(([i]) => i <= 10001)
       .map(([, p]) => p)
       .last()
@@ -182,7 +182,7 @@ function ex9() {
 }
 
 function ex10() {
-  console.log("Ex10:", primes().takeWhile(lessThan(2000000)).reduce(sum));
+  console.log("Ex10:", ℙ().takeWhile(lessThan(2000000)).reduce(sum));
 }
 export function ex1To10() {
   ex1();
