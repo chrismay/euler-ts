@@ -1,6 +1,6 @@
 import { fromArray } from ".";
-import { ints, nats } from "./generators";
-import { lessThan, greaterThan } from "./predicates";
+import { ℤ, ℕ } from "./generators";
+import { greaterThan } from "./predicates";
 
 interface BasisReduction { n: number; factors: number[] }
 interface WheelReduction { n: number; k: number; factors: number[] }
@@ -20,7 +20,7 @@ function basisFactorise(base: number, acc: BasisReduction): BasisReduction {
 function* candidates(): Generator<number, void, unknown> {
     let k = 7;
     const inc = [4, 2, 4, 2, 4, 6, 2, 6];
-    for (const i of ints()) {
+    for (const i of ℤ()) {
         yield k;
         k = k + inc[i % inc.length];
     }
@@ -51,7 +51,7 @@ export function wheelFactorise(num: number): number[] {
 }
 
 export function properDivisiors(n: number): number[] {
-    const divs = nats()
+    const divs = ℕ()
         .filter(greaterThan(1))
         .takeWhile(x => x * x <= n)
         .filter(x => n % x == 0)

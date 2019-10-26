@@ -1,4 +1,4 @@
-import { greaterThan, lessThan, nats } from "../util";
+import { greaterThan, lessThan, ℕ } from "../util";
 import { maxBy } from "../util/reducers";
 
 type Cache = { [key: number]: number };
@@ -16,7 +16,7 @@ function collatzMapping(i: number, acc: Accumulator): Accumulator {
 }
 
 function collatz(start: number, cache: Cache): Accumulator {
-    const res = nats()
+    const res = ℕ()
         .foldMap(collatzMapping, { i: 0, n: start, cache })
         .takeWhile(({ n }) => greaterThan(1)(n))
         .map(({ i, cache }) => ({ i: i + 2, n: start, cache }))
@@ -30,7 +30,7 @@ function collatz(start: number, cache: Cache): Accumulator {
 // console.log(collatz(13, { 5: 4 }));
 export function ex14(){
     console.log("Ex 14:",
-        nats().
+        ℕ().
             filter(greaterThan(2))
             .takeWhile(lessThan(1000001))
             .foldMap((n, acc) => (collatz(n, acc.cache)), { i: 0, n: 0, cache: {} })

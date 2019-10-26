@@ -1,4 +1,4 @@
-import { greaterThan, lessThan, nats, Predicate, zip, primes, sum, max, prod } from "../util";
+import { greaterThan, lessThan, ℕ, Predicate, zip, primes, sum, max, prod } from "../util";
 
 const square: (x: number) => number = x => x * x;
 
@@ -7,7 +7,7 @@ function ex1() {
 
   console.log(
     "Ex1:",
-    nats()
+    ℕ()
       .filter(isDivisible)
       .takeWhile(x => x < 1000)
       .reduce(sum)
@@ -77,7 +77,7 @@ function ex4() {
       .join("");
   }
   const threedigits = () =>
-    nats()
+    ℕ()
       .filter(greaterThan(99))
       .takeWhile(lessThan(1000));
 
@@ -96,7 +96,7 @@ function ex4() {
 }
 
 function ex5() {
-  const factors: number[] = nats()
+  const factors: number[] = ℕ()
     .takeWhile(lessThan(21))
     .toArray();
 
@@ -105,7 +105,7 @@ function ex5() {
   const isMultipleOfAll: (fs: number[]) => Predicate<number> = fs => x => !fs.find(f => x % f !== 0);
 
   const r = rest.reduce(prod);
-  const product = nats()
+  const product = ℕ()
     .takeWhile(lessThan(r))
     .map(x => x * highest)
     .filter(isMultipleOfAll(rest))
@@ -115,12 +115,12 @@ function ex5() {
 
 function ex6() {
   const lim = 100;
-  const sumSquares = nats()
+  const sumSquares = ℕ()
     .takeWhile(lessThan(lim + 1))
     .map(square)
     .reduce(sum);
 
-  const sumNums = nats()
+  const sumNums = ℕ()
     .takeWhile(lessThan(lim + 1))
     .reduce(sum);
   const squareSum = square(sumNums || 0);
@@ -133,7 +133,7 @@ function ex6() {
 function ex7() {
   console.log(
     "Ex7:",
-    zip(nats(), primes())
+    zip(ℕ(), primes())
       .takeWhile(([i]) => i <= 10001)
       .map(([, p]) => p)
       .last()
@@ -160,7 +160,7 @@ function ex8() {
 
 function ex9() {
   const squares = () =>
-    nats()
+    ℕ()
       .map(x => ({ x, x2: square(x) }))
       .takeWhile(({ x }) => lessThan(1000)(x));
 

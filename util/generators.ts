@@ -131,8 +131,8 @@ export function* zip<T1, T2>(gen1: Generator<T1, void, unknown>, gen2: Generator
     }
   }
 }
-
-export function* ints(): Generator<number, void, unknown> {
+// integers
+export function* ℤ(): Generator<number, void, unknown> {
   let i = 0;
   while (true) {
     yield i;
@@ -146,5 +146,5 @@ export function* fromArray<T>(ts: T[]): Generator<T, void, unknown> {
   }
 }
 
-export const nats = () => ints().filter(greaterThan(0));
-// export const ℕ = nats;
+// natural numbers
+export const ℕ = () => ℤ().filter(greaterThan(0));

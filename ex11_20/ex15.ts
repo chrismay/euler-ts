@@ -1,4 +1,4 @@
-import { ints, lessThan } from "../util";
+import { ℤ, lessThan } from "../util";
 
 type Coordinate = { x: number; y: number };
 
@@ -13,9 +13,9 @@ function append(cache: PathCache, coord: Coordinate, paths: number): PathCache {
 
 //yields {0,0},{0,1},{0,2},...{1,0},{1,1}... until {limits}
 const latticePoints = (limits: Coordinate) =>
-    ints()
+    ℤ()
         .takeWhile(lessThan(limits.x + 1))
-        .flatMap(x => ints()
+        .flatMap(x => ℤ()
             .takeWhile(lessThan(limits.y + 1))
             .map(y => ({ x, y }))
         );

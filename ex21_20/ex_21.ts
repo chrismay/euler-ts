@@ -1,5 +1,5 @@
 import { properDivisiors } from "../util/factorise";
-import { sum, nats, lessThan } from "../util";
+import { sum, ℕ, lessThan } from "../util";
 
 
 function sumDivisors(n: number) {
@@ -12,5 +12,5 @@ function isAmicable(n: number) {
 }
 
 export function ex21(){
-    console.log("Ex 21:", nats().filter(isAmicable).takeWhile(lessThan(10000)).reduce(sum));
+    console.log("Ex 21:", ℕ().filter(isAmicable).takeWhile(lessThan(10000)).reduce(sum));
 }
