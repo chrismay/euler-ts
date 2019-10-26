@@ -11,6 +11,7 @@ function append(cache: PathCache, coord: Coordinate, paths: number): PathCache {
     return { ...cache, [toS(coord)]: paths };
 }
 
+//yields {0,0},{0,1},{0,2},...{1,0},{1,1}... until {limits}
 const latticePoints = (limits: Coordinate) =>
     ints()
         .takeWhile(lessThan(limits.x + 1))

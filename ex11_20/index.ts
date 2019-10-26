@@ -3,6 +3,7 @@ import { frequency } from "../util/reducers";
 import { wheelFactorise } from "../util/factorise";
 import { ex14 } from "./ex14";
 import { ex15 } from "./ex15";
+import { ex18 } from "./ex18";
 type Matrix = number[][];
 
 
@@ -139,6 +140,7 @@ export function ex11To20() {
     ex12();
     ex14();
     ex15();
+    ex18();
     ex20();
 }
 //ex11To20();
