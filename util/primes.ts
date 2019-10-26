@@ -1,4 +1,4 @@
-export function* ℙ(): Generator<number, void, void> {
+export function* primes(): Generator<number, void, void> {
     let prev = 1;
     const primes: number[] = [];
     function notprime(x: number) {

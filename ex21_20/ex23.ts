@@ -13,7 +13,9 @@ function isSumOfAbundants(n: number): boolean {
     return !!(abundantsArr.filter(lessThan(n - 11)).find(a => abundantsSet.has(n - a)));
 }
 
-console.log("Ex 23:", ℕ()
+export function ex23(){
+    console.log("Ex 23:", ℕ()
     .takeWhile(lessThan(28124))
     .filter(not(isSumOfAbundants))
     .reduce(sum));
+}

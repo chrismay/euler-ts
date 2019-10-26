@@ -1,5 +1,5 @@
 import { Predicate, Reducer, MapFunction, greaterThan } from ".";
-import { Fold } from "./reducers";
+import { Fold, count } from "./reducers";
 
 declare global {
   interface Generator<T, TReturn, TNext> {
@@ -8,6 +8,7 @@ declare global {
     flatMap<To>(f: MapFunction<T, Generator<To, unknown, TNext>>): Generator<To, void, TNext>;
     filter(p: Predicate<T>): Generator<T, TReturn, TNext>;
     takeWhile(p: Predicate<T>): Generator<T, void, TNext>;
+    take(count: number): Generator<T, void, TNext>;
     reduce<To>(ff: Reducer<T, To>): To | undefined;
     fold<To>(ff: Fold<T, To>, init: To): To;
     foldMap<To>(ff: Fold<T, To>, init: To): Generator<To, void, TNext>;
@@ -15,6 +16,7 @@ declare global {
     last(): T;
     lastOrDefault(dflt: T): T;
     toArray(): T[];
+    size(): number;
   }
 }
 
@@ -56,6 +58,16 @@ genProto.takeWhile = function* <T>(this: Generator<T, unknown, unknown>, p: Pred
     yield v;
   }
 };
+genProto.take = function* <T>(this: Generator<T, unknown, unknown>, count: number): Generator<T, void, unknown> {
+  let taken = 0;
+  for (const v of this) {
+    yield v;
+    taken = taken + 1;
+    if (taken >= count) {
+      return;
+    }
+  }
+};
 
 genProto.reduce = function <TFrom, TTo>(this: Generator<TFrom, TFrom, unknown>, ff: Reducer<TFrom, TTo>): TTo | undefined {
   let acc: TTo | undefined;
@@ -63,6 +75,10 @@ genProto.reduce = function <TFrom, TTo>(this: Generator<TFrom, TFrom, unknown>, 
     acc = ff(v, acc);
   }
   return acc;
+};
+
+genProto.size = function<TFrom, TTo>(this: Generator<TFrom, TFrom, unknown>): number{
+  return this.reduce(count)||0;
 };
 
 genProto.fold = function <TFrom, TTo>(this: Generator<TFrom, TFrom, unknown>, ff: Fold<TFrom, TTo>, init: TTo): TTo {
@@ -137,6 +153,14 @@ export function* ℤ(): Generator<number, void, unknown> {
   while (true) {
     yield i;
     i++;
+  }
+}
+
+export function* range(fromInc: number, toInc: number): Generator<number, void, unknown> {
+  let i = fromInc;
+  while (i <= toInc) {
+    yield i;
+    i = i + 1;
   }
 }
 
