@@ -147,3 +147,4 @@ export function* fromArray<T>(ts: T[]): Generator<T, void, unknown> {
 }
 
 export const nats = () => ints().filter(greaterThan(0));
+// export const ℕ = nats;
