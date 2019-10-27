@@ -1,4 +1,4 @@
-import { greaterThan, lessThan, ℕ, Predicate, zip, primes, sum, max, prod } from "../util";
+import { lessThan, max, Predicate, primes, prod, sum, zip, ℕ } from "../util";
 
 const square: (x: number) => number = x => x * x;
 
@@ -78,7 +78,7 @@ function ex4() {
   }
   const threedigits = () =>
     ℕ()
-      .filter(greaterThan(99))
+      .exclude(lessThan(100))
       .takeWhile(lessThan(1000));
 
   const palindromic: Predicate<number> = x => "" + x === reverseString("" + x);

@@ -2,6 +2,13 @@ export type Reducer<TFrom, TTo> = (v: TFrom, acc?: TTo) => TTo;
 export type Fold<TFrom, TTo> = (v: TFrom, acc: TTo) => TTo;
 
 export const sum: Reducer<number, number> = (a, b) => a + (b ? b : 0);
+export function Σ(iter: Iterable<number>): number {
+  let total = 0;
+  for (const v of iter) {
+    total += v;
+  }
+  return total;
+}
 export const prod: Reducer<number, number> = (a: number, b?: number) => a * (b !== undefined ? b : 1);
 export const max: Reducer<number, number> = (next: number, prev?: number) => {
   if (prev !== undefined) {
@@ -28,4 +35,4 @@ export const frequency: Reducer<number, Count> = (n, freqs = {}) => {
   return freqs;
 };
 
-export const count: Reducer<unknown, number> = (x: unknown, i?: number) => (i||0) + 1;
+export const count: Reducer<unknown, number> = (_: unknown, i = 0) => i + 1;

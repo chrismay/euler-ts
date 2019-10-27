@@ -50,7 +50,7 @@ export function wheelFactorise(num: number): number[] {
     return factors;
 }
 
-export function properDivisiors(n: number): number[] {
+export function properDivisors(n: number): number[] {
     const divs = ℕ()
         .filter(greaterThan(1))
         .takeWhile(x => x * x <= n)
@@ -59,3 +59,6 @@ export function properDivisiors(n: number): number[] {
         .reduce<number[]>((items, acc) => (acc === undefined) ? items : acc.concat(items));
     return [1].concat(divs || []);
 }
+
+//console.log(wheelFactorise(360));
+//console.log(properDivisors(360));

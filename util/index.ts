@@ -12,4 +12,3 @@ declare global {
 Array.prototype.last = function <T>(this: T[]): T {
   return this.slice(-1)[0];
 };
-

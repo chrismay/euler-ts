@@ -1,5 +1,6 @@
 import { Predicate, Reducer, MapFunction, greaterThan } from ".";
 import { Fold, count } from "./reducers";
+import { not } from "./predicates";
 
 declare global {
   interface Generator<T, TReturn, TNext> {
@@ -7,6 +8,7 @@ declare global {
     tap(effect: (t: T) => void): Generator<T, void, TNext>;
     flatMap<To>(f: MapFunction<T, Generator<To, unknown, TNext>>): Generator<To, void, TNext>;
     filter(p: Predicate<T>): Generator<T, TReturn, TNext>;
+    exclude(p: Predicate<T>): Generator<T, TReturn, TNext>;
     takeWhile(p: Predicate<T>): Generator<T, void, TNext>;
     take(count: number): Generator<T, void, TNext>;
     reduce<To>(ff: Reducer<T, To>): To | undefined;
@@ -42,6 +44,9 @@ genProto.filter = function*<T>(this: Generator<T, unknown, unknown>, p: Predicat
     }
   }
 };
+genProto.exclude = function*<T>(this: Generator<T, unknown, unknown>, p: Predicate<T>): Generator<T, void, unknown> {
+  yield* this.filter(not(p));
+};
 
 genProto.first = function <T>(this: Generator<T, unknown, unknown>): T {
   for (const v of this) {
@@ -58,6 +63,7 @@ genProto.takeWhile = function* <T>(this: Generator<T, unknown, unknown>, p: Pred
     yield v;
   }
 };
+
 genProto.take = function* <T>(this: Generator<T, unknown, unknown>, count: number): Generator<T, void, unknown> {
   let taken = 0;
   for (const v of this) {
@@ -125,8 +131,6 @@ genProto.lastOrDefault = function <T>(this: Generator<T, unknown, unknown>, dflt
   return last;
 };
 
-
-
 genProto.flatMap = function* <TFrom, TTo>(
   this: Generator<TFrom, unknown, unknown>,
   f: (v: TFrom) => Generator<TTo, unknown, unknown>): Generator<TTo, void, unknown> {
@@ -147,6 +151,7 @@ export function* zip<T1, T2>(gen1: Generator<T1, void, unknown>, gen2: Generator
     }
   }
 }
+
 // integers
 export function* ℤ(): Generator<number, void, unknown> {
   let i = 0;

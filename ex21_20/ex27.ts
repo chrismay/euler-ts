@@ -11,12 +11,10 @@ const ℙ = new Set(primes().take(300));
 const prime = (n: number) => ℙ.has(n);
 
 
-function countConsecutivePrimes(𝕗: (n: number) => number): number {
-    return ℤ()
+const countConsecutivePrimes = (𝕗: (n: number) => number) => ℤ()
         .map(𝕗)
         .takeWhile(prime)
         .size();
-}
 
 function findMaxPrimes() {
     return range(-1000, 1000)
@@ -28,4 +26,3 @@ export function ex27(){
     const max = findMaxPrimes().reduce(maxBy(({ c }) => c));
     max && console.log("Ex27: ", max, (max.a * max.b));
 }
-

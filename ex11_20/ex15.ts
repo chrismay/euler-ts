@@ -38,7 +38,7 @@ const initCache: PathCache = { "x0y0": 1 };
 export function ex15() {
 
     console.log("Ex15:", latticePoints({ x: 20, y: 20 })
-        .filter(pos => toS(pos) !== "x0y0")
+        .exclude(pos => toS(pos) === "x0y0")
         .fold(addPaths, initCache
         )["x20y20"]);
 }

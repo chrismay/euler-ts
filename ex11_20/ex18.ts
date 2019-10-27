@@ -1,4 +1,5 @@
-import { sum, max } from "../util";
+import { max } from "../util";
+import { Σ } from "../util/reducers";
 
 const triangle =
     `75
@@ -37,6 +38,6 @@ function* generatePaths(
 export function ex18(){
     const [head, ...rest] = triangle;
     console.log(generatePaths(head, 0, rest)
-        .map(p => p.reduce(sum))
+        .map(Σ)
         .reduce(max));
 }

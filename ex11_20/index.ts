@@ -1,6 +1,6 @@
-import { sum, prod, max, fromArray } from "../util";
-import { frequency } from "../util/reducers";
-import { wheelFactorise } from "../util/factorise";
+import { fromArray, max, prod } from "../util";
+import { wheelFactorise, properDivisors } from "../util/factorise";
+import { Σ } from "../util/reducers";
 import { ex14 } from "./ex14";
 import { ex15 } from "./ex15";
 import { ex18 } from "./ex18";
@@ -10,7 +10,8 @@ type Matrix = number[][];
 
 function divisors(num: number): number {
 
-    function countDistinct(items: number[]) {
+    function countDistinct(items: number[]): [number, number][] {
+
         const res: [number, number][] = [];
         let cur;
         let count = 0;
@@ -127,11 +128,10 @@ function ex20() {
     }
     console.log(
         "Ex20: ",
-        fact(BigInt(100))
+        Σ(fact(BigInt(100))
             .toString()
             .split("")
-            .map(c => +c)
-            .reduce(sum)
+            .map(c => +c))
     );
 }
 
@@ -147,3 +147,4 @@ export function ex11To20() {
 /*
 Ex20:  648
  */
+ex12();
