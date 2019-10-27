@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "build": "tsc --outDir ./build",
-    "test": "node ./build/index.js"
+    "build": "tsc -p tsconfig.json",
+    "test": "node ./out/index.js"
   },
   "author": "",
   "license": "ISC",
