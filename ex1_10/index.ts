@@ -194,7 +194,7 @@ export function ex1To10() {
   ex6();
   ex7();
   ex8();
-  console.log("Ex 9 takes ~60 seconds to run; so skipping it...");
-  if (false) ex9();
+  ex9();
+  console.log('Ex10 takes 60 seconds, so skipping...');
   if (false) ex10();
 }
