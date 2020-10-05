@@ -1,4 +1,4 @@
-import { ℕ, not, sum, lessThan } from "../util";
+import { ℕ, sum, lessThan } from "../util";
 import { properDivisors } from "../util/factorise";
 import { Σ } from "../util/reducers";
 

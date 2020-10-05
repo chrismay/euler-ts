@@ -1,5 +1,5 @@
 import { fromArray, max, prod } from "../util";
-import { wheelFactorise, properDivisors } from "../util/factorise";
+import { wheelFactorise } from "../util/factorise";
 import { Σ } from "../util/reducers";
 import { ex14 } from "./ex14";
 import { ex15 } from "./ex15";
